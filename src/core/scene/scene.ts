@@ -593,7 +593,7 @@ export async function loadSceneFromURL(
       const uvScaleX = size[0] > 0 ? (repeatX * 0.5) / size[0] : repeatX * 0.5;
       const uvScaleZ = size[1] > 0 ? (repeatY * 0.5) / size[1] : repeatY * 0.5;
       const shaderMat = createInfinitePlaneShaderMaterial({
-        color: baseMat.color.clone(),
+        color: baseMat.color.clone().multiplyScalar(1.67),
         opacity: baseMat.opacity,
         texture: tex,
         uvScaleX,
@@ -646,7 +646,7 @@ export async function loadSceneFromURL(
   parent.mujocoRoot = mujocoRoot;
 
   const skybox = createSkyboxTexture(mujoco, mjModel);
-  parent.scene.background = skybox;
+  parent.scene.background = skybox ?? new THREE.Color(0xbfd4e8);
 
   if (!mjModel || 'deleted' in mjModel) {
     throw new Error('loadSceneFromURL: mjModel is invalid or already deleted');

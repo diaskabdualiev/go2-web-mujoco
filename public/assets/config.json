@@ -12,11 +12,11 @@
             "lookat": [
               0.0,
               0.0,
-              0.45
+              0.3
             ],
-            "distance": 3.6,
-            "elevation": -22.0,
-            "azimuth": 38.0,
+            "distance": 2.5,
+            "elevation": -20.0,
+            "azimuth": 180.0,
             "originType": "ASSET_BODY",
             "enableReflections": true,
             "enableShadows": true,

@@ -12,6 +12,41 @@ function getVersionFromPython(): string {
 const isMt = process.env.MJSWAN_MT === '1';
 const isDebug = process.env.MJSWAN_DEBUG === '1';
 const coiSwPath = path.resolve(__dirname, '_mt/coi-serviceworker.js');
+const ortDistDir = path.resolve(__dirname, 'node_modules/onnxruntime-web/dist');
+
+function ortPlugin(): Plugin {
+  return {
+    name: 'mjswan-ort',
+    configureServer(server) {
+      server.middlewares.use('/ort/', (req, res, next) => {
+        const urlPath = (req.url || '').split('?')[0].replace(/^\/+/, '');
+        const filePath = path.join(ortDistDir, urlPath);
+        if (!filePath.startsWith(ortDistDir) || !fs.existsSync(filePath)) {
+          next();
+          return;
+        }
+        const ext = path.extname(filePath);
+        const type =
+          ext === '.wasm' ? 'application/wasm' :
+          ext === '.mjs' ? 'application/javascript' :
+          'application/octet-stream';
+        res.setHeader('Content-Type', type);
+        res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+        fs.createReadStream(filePath).pipe(res);
+      });
+    },
+    generateBundle() {
+      for (const file of fs.readdirSync(ortDistDir)) {
+        if (!/\.(wasm|mjs)$/.test(file)) continue;
+        this.emitFile({
+          type: 'asset',
+          fileName: `ort/${file}`,
+          source: fs.readFileSync(path.join(ortDistDir, file)),
+        });
+      }
+    },
+  };
+}
 
 function mtPlugin(enabled: boolean): Plugin | null {
   if (!enabled) return null;
@@ -77,7 +112,7 @@ function gtmPlugin(gtmId: string | undefined) {
 }
 
 export default defineConfig({
-  plugins: [react(), vanillaExtractPlugin(), mtPlugin(isMt), gtmPlugin(process.env.MJSWAN_GTM_ID)],
+  plugins: [react(), vanillaExtractPlugin(), mtPlugin(isMt), ortPlugin(), gtmPlugin(process.env.MJSWAN_GTM_ID)],
   esbuild: {
     drop: isDebug ? [] : ['console', 'debugger'],
   },

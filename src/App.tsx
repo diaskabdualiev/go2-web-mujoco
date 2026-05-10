@@ -347,6 +347,9 @@ function AppContent() {
         setError(err.message || 'Failed to load config.');
         hideLoading();
       });
+    return () => {
+      hideLoading();
+    };
   }, [projectId, sceneQuery, policyQuery, showLoading, hideLoading]);
 
   const scenePath = useMemo(() => {

@@ -36,7 +36,13 @@ export type ViewerState = {
   trackBodyId: number | null;
   /** Previous body world position used to compute per-frame delta for parallel tracking. */
   prevBodyPos: THREE.Vector3 | null;
+  /** Previous body yaw (radians, MuJoCo frame) used to rotate the camera with the robot. */
+  prevBodyYaw: number | null;
 };
+
+function yawFromMjQuat(qw: number, qx: number, qy: number, qz: number): number {
+  return Math.atan2(2 * (qw * qz + qx * qy), 1 - 2 * (qy * qy + qz * qz));
+}
 
 
 function computeCameraPosition(
@@ -69,7 +75,7 @@ export function applyViewerConfig(
   mjModel: MjModel | null,
   mjData: MjData | null
 ): ViewerState {
-  const state: ViewerState = { trackBodyId: null, prevBodyPos: null };
+  const state: ViewerState = { trackBodyId: null, prevBodyPos: null, prevBodyYaw: null };
   controls.enabled = true;
 
   const lookat = config?.lookat ?? VIEWER_CONFIG_DEFAULTS.lookat;
@@ -118,6 +124,8 @@ export function applyViewerConfig(
     camera.position.add(bodyPos);
     controls.target.add(bodyPos);
     state.prevBodyPos = bodyPos;
+    const q = mjData.xquat.slice(state.trackBodyId * 4, state.trackBodyId * 4 + 4);
+    state.prevBodyYaw = yawFromMjQuat(q[0], q[1], q[2], q[3]);
     controls.update();
   }
 
@@ -137,8 +145,6 @@ export function updateCameraFromData(
   state: ViewerState
 ): void {
   if (state.trackBodyId !== null) {
-    // Parallel tracking: translate both the camera and the orbit target by the
-    // body's delta each frame, preserving the camera angle and zoom level.
     const b = state.trackBodyId;
     const bodyPos = mjcToThreeCoordinate(mjData.xpos.slice(b * 3, b * 3 + 3));
     if (state.prevBodyPos !== null) {
@@ -147,5 +153,19 @@ export function updateCameraFromData(
       controls.target.add(delta);
     }
     state.prevBodyPos = bodyPos;
+
+    const q = mjData.xquat.slice(b * 4, b * 4 + 4);
+    const yaw = yawFromMjQuat(q[0], q[1], q[2], q[3]);
+    if (state.prevBodyYaw !== null) {
+      let dyaw = yaw - state.prevBodyYaw;
+      if (dyaw > Math.PI) dyaw -= 2 * Math.PI;
+      if (dyaw < -Math.PI) dyaw += 2 * Math.PI;
+      if (Math.abs(dyaw) > 1e-6) {
+        const offset = camera.position.clone().sub(controls.target);
+        offset.applyAxisAngle(new THREE.Vector3(0, 1, 0), dyaw);
+        camera.position.copy(controls.target).add(offset);
+      }
+    }
+    state.prevBodyYaw = yaw;
   }
 }

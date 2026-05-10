@@ -22,6 +22,7 @@ import { MJSWAN_VERSION, GITHUB_CONTRIBUTORS, type Contributor } from '../Versio
 import FloatingPanel from './FloatingPanel';
 import { LabeledInput } from './LabeledInput';
 import { CommandSection } from './CommandSection';
+import { KeyboardCommandSection } from './KeyboardCommandSection';
 import { SplatSection } from './SplatSection';
 import {
   getCommandInputId,
@@ -584,10 +585,13 @@ function ControlPanel(props: ControlPanelProps) {
             </>
           )}
 
-          {/* Command Groups - only show if there are commands */}
+          {/* Keyboard control replaces velocity sliders. Other command groups (e.g. checkboxes) still render. */}
+          {commandGroups.includes('base_velocity') && (
+            <KeyboardCommandSection disabled={!commandsEnabled} />
+          )}
           {commandGroups.length > 0 && commands.some(cmd => cmd.config.type === 'slider' || cmd.config.type === 'checkbox') && (
             <>
-              {commandGroups.map((groupName) => {
+              {commandGroups.filter(g => g !== 'base_velocity').map((groupName) => {
                 const groupCommands = getValueCommandsForGroup(groupName);
                 if (groupCommands.length === 0) return null;
 
