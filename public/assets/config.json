@@ -6,8 +6,8 @@
       "id": null,
       "scenes": [
         {
-          "name": "Go2 Velocity",
-          "path": "go2_velocity/scene.mjz",
+          "name": "Go2 Corridor",
+          "path": "go2_corridor/scene.mjz",
           "camera": {
             "lookat": [
               0.0,
@@ -33,8 +33,8 @@
           ]
         },
         {
-          "name": "Go2 Corridor",
-          "path": "go2_corridor/scene.mjz",
+          "name": "Go2 Velocity",
+          "path": "go2_velocity/scene.mjz",
           "camera": {
             "lookat": [
               0.0,
