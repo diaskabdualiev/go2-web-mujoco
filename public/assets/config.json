@@ -31,6 +31,33 @@
               "default": true
             }
           ]
+        },
+        {
+          "name": "Go2 Corridor",
+          "path": "go2_corridor/scene.mjz",
+          "camera": {
+            "lookat": [
+              0.0,
+              0.0,
+              0.3
+            ],
+            "distance": 2.5,
+            "elevation": -20.0,
+            "azimuth": 180.0,
+            "originType": "ASSET_BODY",
+            "enableReflections": true,
+            "enableShadows": true,
+            "height": 240,
+            "width": 320,
+            "bodyName": "base"
+          },
+          "policies": [
+            {
+              "name": "Go2 mjlab velocity",
+              "config": "go2_velocity/go2_mjlab_velocity.json",
+              "default": true
+            }
+          ]
         }
       ]
     }
