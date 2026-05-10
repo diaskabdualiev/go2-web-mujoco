@@ -1,0 +1,38 @@
+{
+  "version": "0.5.5",
+  "projects": [
+    {
+      "name": "Unitree Go2 mjlab",
+      "id": null,
+      "scenes": [
+        {
+          "name": "Go2 Velocity",
+          "path": "go2_velocity/scene.mjz",
+          "camera": {
+            "lookat": [
+              0.0,
+              0.0,
+              0.45
+            ],
+            "distance": 3.6,
+            "elevation": -22.0,
+            "azimuth": 38.0,
+            "originType": "ASSET_BODY",
+            "enableReflections": true,
+            "enableShadows": true,
+            "height": 240,
+            "width": 320,
+            "bodyName": "base"
+          },
+          "policies": [
+            {
+              "name": "Go2 mjlab velocity",
+              "config": "go2_velocity/go2_mjlab_velocity.json",
+              "default": true
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
